@@ -23,8 +23,8 @@ new class {
 		this.logElem = document.getElementById("log");
 		this.startElem = document.getElementById("start");
 		this.stopElem = document.getElementById("stop");
-		let url = window.location.href + btoa(this.my_room)
-		document.getElementById("video_link").innerHTML = `<a href="${url}" target="_blank">url</a>`
+		let url = window.location.href + atob(this.my_room)
+		document.getElementById("video_link").innerHTML = `<a href="${url}" target="_blank">${url}</a>`
 
 
 		this.startElem.addEventListener("click", (evt) => {
