@@ -65,7 +65,7 @@ new class {
 		this.net.send_cmd('img_frame', frame)
 		setTimeout(() => {
 			this.timerCallback();
-		}, 100);
+		}, 200);
 	}
 	computeFrame() {
 		if (!this.videoTrack) return
@@ -76,7 +76,7 @@ new class {
 		let canvasContext = this.canvas.getContext("2d");
 		canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		canvasContext.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
-		return this.canvas.toDataURL('image/jpeg', 0.7);
+		return this.canvas.toDataURL('image/jpeg', 0.8);
 	}
 	uuid() {
 		let d = new Date().getTime();
