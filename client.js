@@ -14,6 +14,7 @@ new class {
 				this.net.send_cmd('got')
 			})
 			this.net.connect('wss://ws.emupedia.net')
+			window.n = this.net
 		})
 	}
 }

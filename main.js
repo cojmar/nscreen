@@ -15,7 +15,7 @@ new class {
 				this.start()
 			})
 			this.net.on('got', () => {
-				this.sent = false
+				this.timerCallback()
 			})
 			this.net.connect('wss://ws.emupedia.net')
 		})
@@ -26,7 +26,7 @@ new class {
 		this.logElem = document.getElementById("log");
 		this.startElem = document.getElementById("start");
 		this.stopElem = document.getElementById("stop");
-		let url = window.location.href + btoa(this.my_room)
+		let url = (window.location.href.indexOf('localhost') !== -1) ? window.location.href + '404.html#' + btoa(this.my_room) : window.location.href + btoa(this.my_room)
 		let video_link = document.getElementById("video_link")
 		video_link.innerHTML = `<a href="#">${url}</a>`
 		video_link.addEventListener('click', (e) => {
@@ -79,14 +79,10 @@ new class {
 	}
 	timerCallback() {
 		if (!this.streaming) return
-		if (this.sent) return
-		this.sent = true
 
 		let frame = this.computeFrame()
 		this.net.send_cmd('img_frame', frame)
-		setTimeout(() => {
-			this.timerCallback();
-		}, 10);
+
 	}
 	computeFrame() {
 		if (!this.videoTrack) return
