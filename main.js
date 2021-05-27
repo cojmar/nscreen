@@ -71,7 +71,7 @@ new class {
 	}
 	sendScreen() {
 		if (!this.frame) return;
-		this.net.send_cmd('img_frame', this.frame)
+		this.net.send_cmd('img_frame', LZUTF8.compress(this.frame, { outputEncoding: "StorageBinaryString" }))
 	}
 	stopCapture(evt) {
 		let tracks = this.video.srcObject.getTracks();
@@ -94,6 +94,16 @@ new class {
 			this.timerCallback();
 		}, 10);
 	}
+	getColorIndicesForCoord(x, y) {
+		const width = this.canvas.width
+		const red = y * (width * 4) + x * 4;
+		return [red, red + 1, red + 2, red + 3];
+	}
+	getPixel(x, y, imageData) {
+		const colorIndices = this.getColorIndicesForCoord(x, y);
+		const [redIndex, greenIndex, blueIndex, alphaIndex] = colorIndices;
+		return [imageData.data[redIndex], imageData.data[greenIndex], imageData.data[blueIndex], imageData.data[alphaIndex]];
+	}
 	computeFrame() {
 		if (!this.videoTrack) return
 		this.canvas = document.createElement("canvas");
@@ -103,11 +113,31 @@ new class {
 		let canvasContext = this.canvas.getContext("2d");
 		canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		canvasContext.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
+		if (this.img_buffer) this.old_buffer = this.img_buffer
+		this.img_buffer = canvasContext.getImageData(0, 0, this.canvas.width, this.canvas.height)
+		if (!this.old_buffer) {
+			this.frame = this.canvas.toDataURL('image/png')
+			return
+		}
+		let myImageData = canvasContext.createImageData(this.canvas.width, this.canvas.height);
+
+		for (let i = 0; i < this.img_buffer.data.length; i += 4) {
+			let pixel = [this.img_buffer.data[i], this.img_buffer.data[i + 1], this.img_buffer.data[i + 2], this.img_buffer.data[i + 3]].join('-')
+			let pixel_old = false
+			if (this.old_buffer.data[i] && this.old_buffer.data[i + 1] && this.old_buffer.data[i + 2] && this.old_buffer.data[i + 3]) {
+				pixel_old = [this.old_buffer.data[i], this.old_buffer.data[i + 1], this.old_buffer.data[i + 2], this.old_buffer.data[i + 3]].join('-')
+			}
+			if (pixel != pixel_old) {
+				myImageData.data[i] = this.img_buffer.data[i]
+				myImageData.data[i + 1] = this.img_buffer.data[i + 1]
+				myImageData.data[i + 2] = this.img_buffer.data[i + 2]
+				myImageData.data[i + 3] = this.img_buffer.data[i + 3]
+			}
+		}
+		canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
+		canvasContext.putImageData(myImageData, 0, 0);
 		this.frame = this.canvas.toDataURL('image/png')
-		let old_len = this.frame.length
-		this.frame = LZUTF8.compress(this.frame, { outputEncoding: "StorageBinaryString" });
-		let ratio = old_len - this.frame.length
-			//console.log(`${old_len} - ${this.frame.length} -  ${ratio}`)
+
 	}
 	uuid() {
 		let d = new Date().getTime();
