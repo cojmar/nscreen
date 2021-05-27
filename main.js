@@ -24,7 +24,14 @@ new class {
 		this.startElem = document.getElementById("start");
 		this.stopElem = document.getElementById("stop");
 		let url = window.location.href + btoa(this.my_room)
-		document.getElementById("video_link").innerHTML = `<a href="${url}" target="_blank">${url}</a>`
+		let video_link = document.getElementById("video_link")
+		video_link.innerHTML = `<a href="#">${url}</a>`
+		video_link.addEventListener('click', (e) => {
+			e.preventDefault()
+			this.copyToClipboard(url);
+			document.getElementById("status").innerHTML = "Link copied to clipboard!"
+			setTimeout(() => document.getElementById("status").innerHTML = "", 2000)
+		})
 
 
 		this.startElem.addEventListener("click", (evt) => {
@@ -58,6 +65,14 @@ new class {
 		tracks.forEach(track => track.stop());
 		this.video.srcObject = null;
 		this.streaming = false
+	}
+	copyToClipboard(str) {
+		const el = document.createElement('textarea');
+		el.value = str;
+		document.body.appendChild(el);
+		el.select();
+		document.execCommand('copy');
+		document.body.removeChild(el);
 	}
 	timerCallback() {
 		if (!this.streaming) return
