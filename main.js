@@ -2,6 +2,7 @@ new class {
 	constructor() {
 		this.my_room = "N-screen-room-" + this.uid();
 
+
 		//document.getElementById('video_link').innerHTML(window.location.href + btoa(this.my_room))
 
 
@@ -15,10 +16,12 @@ new class {
 				this.start()
 			})
 			this.net.on('got', () => {
+				let now = Date.now() / 100
+				if (this.last_got) {
+					if (now - this.last_got < 3) return
+				}
+				this.last_got = now
 				this.sendScreen()
-				setTimeout(() => {
-					this.sendScreen()
-				}, 1)
 			})
 			this.net.connect('wss://ws.emupedia.net')
 		})
@@ -86,7 +89,7 @@ new class {
 	}
 	timerCallback() {
 		if (!this.streaming) return
-		this.frame = this.computeFrame()
+		this.computeFrame()
 		setTimeout(() => {
 			this.timerCallback();
 		}, 10);
@@ -100,7 +103,7 @@ new class {
 		let canvasContext = this.canvas.getContext("2d");
 		canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		canvasContext.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
-		return this.canvas.toDataURL('image/jpg', 0.9);
+		this.frame = this.canvas.toDataURL('image/jpg', 0.9);
 	}
 	uuid() {
 		let d = new Date().getTime();
