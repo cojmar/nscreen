@@ -1,7 +1,7 @@
 new class {
 	constructor() {
 		this.my_room = "N-screen-room-" + this.uid();
-
+		this.last_true_sent = Date.now() / 1000 - 10
 
 		//document.getElementById('video_link').innerHTML(window.location.href + btoa(this.my_room))
 
@@ -18,7 +18,7 @@ new class {
 			this.net.on('got', () => {
 				let now = Date.now() / 100
 				if (this.last_got) {
-					if (now - this.last_got < 1) return
+					if (now - this.last_got < 0.5) return
 				}
 				this.last_got = now
 				this.sendScreen()
@@ -115,8 +115,12 @@ new class {
 		canvasContext.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
 		if (this.img_buffer) this.old_buffer = this.img_buffer
 		this.img_buffer = canvasContext.getImageData(0, 0, this.canvas.width, this.canvas.height)
-		if (!this.old_buffer) {
+		let now = Date.now() / 1000
+
+
+		if (!this.old_buffer || now - this.last_true_sent > 2) {
 			this.frame = this.canvas.toDataURL('image/png')
+			this.last_true_sent = now
 			return
 		}
 		let myImageData = canvasContext.createImageData(this.canvas.width, this.canvas.height);
