@@ -1,6 +1,6 @@
 new class {
 	constructor() {
-		console.log(window.location.href)
+		console.log(window.location.href.split('/').pop())
 		return;
 		this.my_room = "N-screen-room-" + this.uid();
 		this.streaming = false
