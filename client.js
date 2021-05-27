@@ -24,7 +24,6 @@ new class {
 		})
 	}
 	start() {
-		document.getElementById('main').style.display = 'block';
 		this.video = document.getElementById("video");
 		this.logElem = document.getElementById("log");
 		this.startElem = document.getElementById("start");
