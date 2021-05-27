@@ -7,10 +7,11 @@ new class {
 				this.net.send_cmd('auth', { 'user': '', 'room': this.my_room })
 			})
 			this.net.on('auth.info', () => {
-
+				this.net.send_cmd('got')
 			})
 			this.net.on('img_frame', (msg) => {
 				document.getElementById('out').src = msg.data
+				this.net.send_cmd('got')
 			})
 			this.net.connect('wss://ws.emupedia.net')
 		})
