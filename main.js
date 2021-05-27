@@ -97,13 +97,14 @@ new class {
 	computeFrame() {
 		if (!this.videoTrack) return
 		this.canvas = document.createElement("canvas");
-		this.canvas.width = this.videoTrack.getSettings().width / 2.5;
-		this.canvas.height = this.videoTrack.getSettings().height / 2.5;
+		this.canvas.width = this.videoTrack.getSettings().width / 2.2;
+		this.canvas.height = this.videoTrack.getSettings().height / 2.2;
 
 		let canvasContext = this.canvas.getContext("2d");
 		canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		canvasContext.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
-		this.frame = LZUTF8.compress(this.canvas.toDataURL('image/jpg', 0.7));
+		this.frame = this.canvas.toDataURL('image/jpg')
+		this.frame = LZUTF8.compress(this.frame, { outputEncoding: "StorageBinaryString" });
 	}
 	uuid() {
 		let d = new Date().getTime();
