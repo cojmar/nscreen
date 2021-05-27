@@ -57,7 +57,6 @@ new class {
 		let tracks = this.video.srcObject.getTracks();
 		tracks.forEach(track => track.stop());
 		this.video.srcObject = null;
-		this.videoTrack = null;
 		this.streaming = false
 	}
 	timerCallback() {
