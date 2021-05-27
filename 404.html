@@ -6,10 +6,37 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Document</title>
+	<style>
+		#video {
+			display: none;
+			border: 1px solid #999;
+			width: 98%;
+			max-width: 860px;
+		}
+		
+		.error {
+			color: red;
+		}
+		
+		.warn {
+			color: orange;
+		}
+		
+		.info {
+			color: darkgreen;
+		}
+		
+		#main {
+			display: none;
+		}
+	</style>
 </head>
 
 <body>
-	OPA
+	<div id="main">
+		<img id="out" style="width:100%">
+	</div>
+	<script src="./client.js" type="module"></script>
 </body>
 
 </html>

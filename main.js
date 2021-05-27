@@ -1,13 +1,20 @@
 new class {
 	constructor() {
 		this.my_room = "N-screen-room-" + this.uid();
+		this.streaming = false
 		import (`./network.js`).then((module) => {
 			this.net = new module.default();
-			this.net.send_cmd('auth', { 'user': '', 'room': this.my_room })
-				//	this.start()
+			this.net.on('connect', () => {
+				this.net.send_cmd('auth', { 'user': '', 'room': this.my_room })
+			})
+			this.net.on('auth.info', () => {
+				this.start()
+			})
+			this.net.connect('wss://ws.emupedia.net')
 		})
 	}
 	start() {
+		document.getElementById('main').style.display = 'block';
 		this.video = document.getElementById("video");
 		this.logElem = document.getElementById("log");
 		this.startElem = document.getElementById("start");
@@ -21,7 +28,7 @@ new class {
 		}, false);
 	}
 	async startCapture() {
-		this.logElem.innerHTML = "";
+
 
 		try {
 			this.video.srcObject = await navigator.mediaDevices.getDisplayMedia({
@@ -30,6 +37,7 @@ new class {
 				},
 				audio: false
 			});
+			this.streaming = true
 			this.videoTrack = this.video.srcObject.getVideoTracks()[0]
 			this.timerCallback();
 		} catch (err) {
@@ -41,11 +49,13 @@ new class {
 		let tracks = this.video.srcObject.getTracks();
 		tracks.forEach(track => track.stop());
 		this.video.srcObject = null;
+		this.videoTrack = null;
+		this.streaming = false
 	}
 	timerCallback() {
-		if (!this.videoTrack) return
+		if (!this.streaming) return
 		let frame = this.computeFrame()
-		document.getElementById('out').src = frame;
+		this.net.send_cmd('img_frame', frame)
 		setTimeout(() => {
 			this.timerCallback();
 		}, 0);
