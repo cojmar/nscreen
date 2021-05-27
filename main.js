@@ -18,7 +18,7 @@ new class {
 			this.net.on('got', () => {
 				let now = Date.now() / 100
 				if (this.last_got) {
-					if (now - this.last_got < 3) return
+					if (now - this.last_got < 1.5) return
 				}
 				this.last_got = now
 				this.sendScreen()
@@ -103,7 +103,7 @@ new class {
 		let canvasContext = this.canvas.getContext("2d");
 		canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		canvasContext.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
-		this.frame = this.canvas.toDataURL('image/jpg', 0.9);
+		this.frame = this.canvas.toDataURL('image/jpg', 0.7);
 	}
 	uuid() {
 		let d = new Date().getTime();

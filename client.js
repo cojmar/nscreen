@@ -13,10 +13,11 @@ new class {
 			this.net.on('img_frame', (msg) => {
 				document.getElementById('out').src = msg.data
 				if (this.tick) clearTimeout(this.tick);
+				this.net.send_cmd('got')
 				this.tick = setTimeout(() => {
 					this.net.send_cmd('got')
 					this.tick = false;
-				}, 100)
+				}, 30)
 
 			})
 			this.net.connect('wss://ws.emupedia.net')
