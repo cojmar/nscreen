@@ -103,8 +103,11 @@ new class {
 		let canvasContext = this.canvas.getContext("2d");
 		canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		canvasContext.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
-		this.frame = this.canvas.toDataURL('image/jpg')
+		this.frame = this.canvas.toDataURL('image/png')
+		let old_len = this.frame.length
 		this.frame = LZUTF8.compress(this.frame, { outputEncoding: "StorageBinaryString" });
+		let ratio = old_len - this.frame.length
+			//console.log(`${old_len} - ${this.frame.length} -  ${ratio}`)
 	}
 	uuid() {
 		let d = new Date().getTime();
