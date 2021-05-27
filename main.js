@@ -93,7 +93,7 @@ new class {
 		let canvasContext = this.canvas.getContext("2d");
 		canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		canvasContext.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
-		return this.canvas.toDataURL('image/jpeg', 1);
+		return this.canvas.toDataURL('image/jpeg', 0.9);
 	}
 	uuid() {
 		let d = new Date().getTime();
