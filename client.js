@@ -11,7 +11,7 @@ new class {
 				this.net.send_cmd('got')
 			})
 			this.net.on('img_frame', (msg) => {
-				document.getElementById('out').src = msg.data
+				document.getElementById('out').src = LZUTF8.decompressAsync(msg.data)
 				if (this.tick) clearTimeout(this.tick);
 				this.net.send_cmd('got')
 				this.tick = setTimeout(() => {
