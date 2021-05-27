@@ -1,6 +1,10 @@
 new class {
 	constructor() {
 		this.my_room = "N-screen-room-" + this.uid();
+
+		//document.getElementById('video_link').innerHTML(window.location.href + btoa(this.my_room))
+
+
 		this.streaming = false
 		import (`./network.js`).then((module) => {
 			this.net = new module.default();
@@ -19,6 +23,10 @@ new class {
 		this.logElem = document.getElementById("log");
 		this.startElem = document.getElementById("start");
 		this.stopElem = document.getElementById("stop");
+		let url = window.location.href + btoa(this.my_room)
+		document.getElementById("video_link").innerHTML = `<a href="${url}" target="_blank">url</a>`
+
+
 		this.startElem.addEventListener("click", (evt) => {
 			this.startCapture();
 		}, false);
