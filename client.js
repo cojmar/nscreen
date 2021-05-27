@@ -6,7 +6,7 @@ new class {
 			this.net.on('connect', () => {
 				this.net.send_cmd('auth', { 'user': '', 'room': this.my_room })
 			})
-			this.net.on('auth.info', () => {
+			this.net.on('room.info', () => {
 				this.net.send_cmd('got')
 			})
 			this.net.on('img_frame', (msg) => {
