@@ -89,7 +89,7 @@ new class {
 		this.frame = this.computeFrame()
 		setTimeout(() => {
 			this.timerCallback();
-		}, 1);
+		}, 10);
 	}
 	computeFrame() {
 		if (!this.videoTrack) return

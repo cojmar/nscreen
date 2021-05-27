@@ -16,7 +16,7 @@ new class {
 				this.tick = setTimeout(() => {
 					this.net.send_cmd('got')
 					this.tick = false;
-				}, 20)
+				}, 100)
 
 			})
 			this.net.connect('wss://ws.emupedia.net')
