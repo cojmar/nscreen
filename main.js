@@ -15,7 +15,7 @@ new class {
 				this.start()
 			})
 			this.net.on('got', () => {
-				this.timerCallback()
+				if (this.frame) this.net.send_cmd('img_frame', this.frame)
 			})
 			this.net.connect('wss://ws.emupedia.net')
 		})
@@ -58,6 +58,7 @@ new class {
 			this.streaming = true
 			this.videoTrack = this.video.srcObject.getVideoTracks()[0]
 			this.timerCallback();
+			this.net.send_cmd('img_frame', this.frame)
 		} catch (err) {
 			console.error("Error: " + err);
 		}
@@ -79,10 +80,10 @@ new class {
 	}
 	timerCallback() {
 		if (!this.streaming) return
-
-		let frame = this.computeFrame()
-		this.net.send_cmd('img_frame', frame)
-
+		this.frame = this.computeFrame()
+		setTimeout(() => {
+			this.timerCallback();
+		}, 1);
 	}
 	computeFrame() {
 		if (!this.videoTrack) return
@@ -93,7 +94,7 @@ new class {
 		let canvasContext = this.canvas.getContext("2d");
 		canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		canvasContext.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
-		return this.canvas.toDataURL('image/jpeg', 0.9);
+		return this.canvas.toDataURL('image/jpeg', 1);
 	}
 	uuid() {
 		let d = new Date().getTime();
