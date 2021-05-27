@@ -15,7 +15,10 @@ new class {
 				this.start()
 			})
 			this.net.on('got', () => {
-				if (this.frame) this.net.send_cmd('img_frame', this.frame)
+				this.sendScreen()
+				setTimeout(() => {
+					this.sendScreen()
+				}, 1)
 			})
 			this.net.connect('wss://ws.emupedia.net')
 		})
@@ -58,12 +61,15 @@ new class {
 			this.streaming = true
 			this.videoTrack = this.video.srcObject.getVideoTracks()[0]
 			this.timerCallback();
-			this.net.send_cmd('img_frame', this.frame)
+			this.sendScreen()
 		} catch (err) {
 			console.error("Error: " + err);
 		}
 	}
-
+	sendScreen() {
+		if (!this.frame) return;
+		this.net.send_cmd('img_frame', this.frame)
+	}
 	stopCapture(evt) {
 		let tracks = this.video.srcObject.getTracks();
 		tracks.forEach(track => track.stop());
