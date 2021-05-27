@@ -1,9 +1,6 @@
 new class {
 	constructor() {
-		console.log(atob(window.location.href.split('/').pop()))
-		return;
-		this.my_room = "N-screen-room-" + this.uid();
-		this.streaming = false
+		this.my_room = atob(window.location.href.split('/').pop())
 		import (`./network.js`).then((module) => {
 			this.net = new module.default();
 			this.net.on('connect', () => {
@@ -12,10 +9,10 @@ new class {
 			this.net.on('auth.info', () => {
 				this.start()
 			})
+			this.net.on('img_frame', (img) => {
+				document.getElementById('out').src = img
+			})
 			this.net.connect('wss://ws.emupedia.net')
 		})
-	}
-	start() {
-
 	}
 }
