@@ -29,81 +29,13 @@
 </head>
 
 <body>
-	<p>This example shows you the contents of the selected part of your display. Click the Start Capture button to begin.
-	</p>
-
-	<p><button id="start">Start Capture</button>&nbsp;<button id="stop">Stop Capture</button></p>
-
-	<video id="video" autoplay></video>
-	<br>
-	<img id="out" style="width:100%">
-	<br>
-
-	<strong>Log:</strong>
-	<br>
-	<pre id="log"></pre>
-	<script>
-		new class {
-			constructor() {
-				this.video = document.getElementById("video");
-				this.logElem = document.getElementById("log");
-				this.startElem = document.getElementById("start");
-				this.stopElem = document.getElementById("stop");
-				this.startElem.addEventListener("click", (evt) => {
-					this.startCapture();
-				}, false);
-
-				this.stopElem.addEventListener("click", (evt) => {
-					this.stopCapture();
-				}, false);
-			}
-			async startCapture() {
-				this.logElem.innerHTML = "";
-
-				try {
-					this.video.srcObject = await navigator.mediaDevices.getDisplayMedia({
-						video: {
-							cursor: "always"
-						},
-						audio: false
-					});
-					this.videoTrack = this.video.srcObject.getVideoTracks()[0]
-					this.timerCallback();
-				} catch (err) {
-					console.error("Error: " + err);
-				}
-			}
-
-			stopCapture(evt) {
-				let tracks = this.video.srcObject.getTracks();
-				tracks.forEach(track => track.stop());
-				this.video.srcObject = null;
-			}
-			timerCallback() {
-				if (!this.videoTrack) return
-				let frame = this.computeFrame()
-				document.getElementById('out').src = frame;
-				setTimeout(() => {
-					this.timerCallback();
-				}, 0);
-			}
-			computeFrame() {
-				if (!this.videoTrack) return
-				this.canvas = document.createElement("canvas");
-				this.canvas.width = this.videoTrack.getSettings().width / 2;
-				this.canvas.height = this.videoTrack.getSettings().height / 2;
-
-				let canvasContext = this.canvas.getContext("2d");
-				canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
-				canvasContext.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
-				return this.canvas.toDataURL('image/png');
-			}
-
-
-
-
-		}
-	</script>
+	<div id="main">
+		<p><button id="start">Start Capture</button>&nbsp;<button id="stop">Stop Capture</button></p>
+		<video id="video" autoplay></video>
+		<br>
+		<img id="out" style="width:100%">
+	</div>
+	<script src="./main.js" type="module"></script>
 </body>
 
 </html>
