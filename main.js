@@ -4,7 +4,7 @@ new class {
 		this.last_true_sent = Date.now() / 1000 - 10
 		this.send_screen_timeout = false
 		this.streaming = false
-		this.max_time_per_tick = 100
+		this.max_time_per_tick = 5
 		import (`./network.js`).then((module) => {
 			this.net = new module.default();
 			this.net.on('connect', () => {
@@ -48,8 +48,6 @@ new class {
 		}, false);
 	}
 	async startCapture() {
-
-
 		try {
 			this.video.srcObject = await navigator.mediaDevices.getDisplayMedia({
 				video: {
@@ -59,7 +57,7 @@ new class {
 			});
 			this.streaming = true
 			this.videoTrack = this.video.srcObject.getVideoTracks()[0]
-			this.timerCallback();
+
 			this.sendScreen()
 		} catch (err) {
 			console.error("Error: " + err);
@@ -71,10 +69,11 @@ new class {
 		this.net.send_cmd('img_frame', LZUTF8.compress(this.frame, { outputEncoding: "StorageBinaryString" }))
 	}
 	stopCapture(evt) {
+		this.streaming = false
 		let tracks = this.video.srcObject.getTracks();
 		tracks.forEach(track => track.stop());
 		this.video.srcObject = null;
-		this.streaming = false
+
 	}
 	copyToClipboard(str) {
 		const el = document.createElement('textarea');
@@ -83,14 +82,6 @@ new class {
 		el.select();
 		document.execCommand('copy');
 		document.body.removeChild(el);
-	}
-	timerCallback() {
-		return
-		if (!this.streaming) return
-		this.computeFrame()
-		setTimeout(() => {
-			this.timerCallback();
-		}, 10);
 	}
 	getColorIndicesForCoord(x, y) {
 		const width = this.canvas.width
@@ -103,10 +94,10 @@ new class {
 		return [imageData.data[redIndex], imageData.data[greenIndex], imageData.data[blueIndex], imageData.data[alphaIndex]];
 	}
 	computeFrame() {
-		if (!this.videoTrack) return
+		if (!this.streaming) return
 		this.canvas = document.createElement("canvas");
-		this.canvas.width = this.videoTrack.getSettings().width / 1.5;
-		this.canvas.height = this.videoTrack.getSettings().height / 1.5;
+		this.canvas.width = this.videoTrack.getSettings().width;
+		this.canvas.height = this.videoTrack.getSettings().height;
 
 		this.w = this.canvas.width
 		this.h = this.canvas.height
@@ -118,7 +109,7 @@ new class {
 		this.img_buffer = canvasContext.getImageData(0, 0, this.canvas.width, this.canvas.height)
 		let now = Date.now() / 1000
 
-		if (!this.old_buffer || now - this.last_true_sent > 100) {
+		if (!this.old_buffer || now - this.last_true_sent > 15) {
 			this.frame = this.canvas.toDataURL('image/jpg')
 				//this.dif_map = false
 			if (now - this.last_true_sent > 101) {
