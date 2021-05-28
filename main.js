@@ -2,8 +2,9 @@ new class {
 	constructor() {
 		this.my_room = "N-screen-room-" + this.uid();
 		this.last_true_sent = Date.now() / 1000 - 10
-		this.dif_map = false
+		this.send_screen_timeout = false
 		this.streaming = false
+		this.max_time_per_tick = 100
 		import (`./network.js`).then((module) => {
 			this.net = new module.default();
 			this.net.on('connect', () => {
@@ -12,14 +13,11 @@ new class {
 			this.net.on('auth.info', () => {
 				this.start()
 			})
-			this.net.on('got', () => {
-				let now = Date.now()
-				if (this.last_got) {
-					if (now - this.last_got < 200) return
-				}
-
-				this.last_got = now
-				this.sendScreen()
+			this.net.on('tick', () => {
+				if (this.send_screen_timeout === false) this.send_screen_timeout = setTimeout(() => {
+					this.sendScreen()
+					this.send_screen_timeout = false
+				}, this.max_time_per_tick)
 			})
 			this.net.connect('wss://ws.emupedia.net')
 		})
@@ -146,7 +144,7 @@ new class {
 		}
 		canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		canvasContext.putImageData(myImageData, 0, 0);
-		this.frame = this.canvas.toDataURL('image/png')
+		this.frame = this.canvas.toDataURL('image/jpg')
 	}
 	uuid() {
 		let d = new Date().getTime();

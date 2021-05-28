@@ -11,7 +11,7 @@ new class {
 				this.net.send_cmd('auth', { 'user': '', 'room': this.my_room })
 			})
 			this.net.on('room.info', () => {
-				this.net.send_cmd('got')
+				this.do_tick()
 			})
 			this.net.on('img_part', (msg) => {
 
@@ -34,12 +34,7 @@ new class {
 		})
 	}
 	do_tick() {
-		if (this.tick) clearTimeout(this.tick);
-		this.net.send_cmd('got')
-		this.tick = setTimeout(() => {
-			this.net.send_cmd('got')
-			this.tick = false;
-		}, 200)
+		this.net.send_cmd('tick')
 	}
 	render(image = false, clean = false) {
 		let canvasContext = this.canvas.getContext("2d");
