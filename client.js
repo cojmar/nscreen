@@ -8,33 +8,33 @@ new class {
 		import (`./network.js`).then((module) => {
 			this.net = new module.default();
 			this.net.on('connect', () => {
-				this.net.send_cmd('auth', { 'user': '', 'room': this.my_room })
+				this.net.send_cmd('auth', { 'user': '', 'room': 'N-screen-lobby' })
 			})
-			this.net.on('room.info', () => {
-				this.do_tick()
-			})
-			this.net.on('img_part', (msg) => {
-
-				let canvasContext = this.canvas.getContext("2d");
-				let part = JSON.parse(LZUTF8.decompress(msg.data.part, { inputEncoding: "StorageBinaryString" }));
-				let myImageData = canvasContext.createImageData(...msg.data.size);
-				console.log(part.length)
-				part.map((item) => myImageData.data[item[0]] = item[1])
-				canvasContext.putImageData(myImageData, 0, 0);
-				this.do_tick()
-			})
-			this.net.on('img_frame', (msg) => {
-				this.frame = LZUTF8.decompress(msg.data, { inputEncoding: "StorageBinaryString" });
+			this.net.on('room.data', (data) => {
+				if (!data.data.frame) return
+				this.frame = LZUTF8.decompress(data.data.frame, { inputEncoding: "StorageBinaryString" });
 				this.render(this.frame)
-				this.do_tick()
+				this.do_ping()
+			})
+			this.net.on('pong', () => {
+				this.net.send_cmd('room_data', 'frame')
+			})
+			this.net.on('room.info', (data) => {
+				if (data.type != 'game') return
+				this.frame = LZUTF8.decompress(data.data.frame, { inputEncoding: "StorageBinaryString" });
+				this.render(this.frame)
+				this.do_ping()
+			})
+			this.net.on('auth.info', () => {
+				this.net.send_cmd('join', this.my_room)
 
 			})
 			this.net.connect('wss://ws.emupedia.net')
 			window.n = this.net
 		})
 	}
-	do_tick() {
-		this.net.send_cmd('tick')
+	do_ping() {
+		this.net.send_cmd('ping')
 	}
 	render(image = false, clean = false) {
 		let canvasContext = this.canvas.getContext("2d");

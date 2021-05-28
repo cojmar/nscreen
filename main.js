@@ -4,23 +4,25 @@ new class {
 		this.last_true_sent = Date.now() / 1000 - 10
 		this.send_screen_timeout = false
 		this.streaming = false
-		this.max_time_per_tick = 5
+		this.max_time_per_ping = 5
 		import (`./network.js`).then((module) => {
 			this.net = new module.default();
 			this.net.on('connect', () => {
-				this.net.send_cmd('auth', { 'user': '', 'room': this.my_room })
+				this.net.send_cmd('auth', { 'user': '', 'room': 'N-screen-lobby' })
 			})
 			this.net.on('auth.info', () => {
+				this.net.send_cmd('join', this.my_room)
 				this.start()
 			})
-			this.net.on('tick', () => {
-				if (this.send_screen_timeout === false) this.send_screen_timeout = setTimeout(() => {
-					this.sendScreen()
-					this.send_screen_timeout = false
-				}, this.max_time_per_tick)
-			})
+			this.net.on('ping', () => this.ping())
 			this.net.connect('wss://ws.emupedia.net')
 		})
+	}
+	ping() {
+		if (this.send_screen_timeout === false) this.send_screen_timeout = setTimeout(() => {
+			this.sendScreen()
+			this.send_screen_timeout = false
+		}, this.max_time_per_ping)
 	}
 	start() {
 		document.getElementById('main').style.display = 'block';
@@ -66,7 +68,8 @@ new class {
 	sendScreen() {
 		this.computeFrame();
 		if (!this.frame) return;
-		this.net.send_cmd('img_frame', LZUTF8.compress(this.frame, { outputEncoding: "StorageBinaryString" }))
+		this.net.send_cmd('set_room_data', { "frame": LZUTF8.compress(this.frame, { outputEncoding: "StorageBinaryString" }), silent: 1 })
+		this.net.send_cmd('pong')
 	}
 	stopCapture(evt) {
 		this.streaming = false
