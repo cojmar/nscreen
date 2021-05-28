@@ -15,8 +15,9 @@ new class {
 			this.net.on('got', () => {
 				let now = Date.now()
 				if (this.last_got) {
-					if (now - this.last_got < 50) return
+					if (now - this.last_got < 200) return
 				}
+
 				this.last_got = now
 				this.sendScreen()
 			})
@@ -67,11 +68,7 @@ new class {
 		}
 	}
 	sendScreen() {
-		if (this.dif_map) {
-			let my_map = JSON.stringify(Array.from(this.dif_map))
-			this.net.send_cmd('img_part', LZUTF8.compress(my_map, { outputEncoding: "StorageBinaryString" }))
-			return
-		}
+		this.computeFrame();
 		if (!this.frame) return;
 		this.net.send_cmd('img_frame', LZUTF8.compress(this.frame, { outputEncoding: "StorageBinaryString" }))
 	}
@@ -90,6 +87,7 @@ new class {
 		document.body.removeChild(el);
 	}
 	timerCallback() {
+		return
 		if (!this.streaming) return
 		this.computeFrame()
 		setTimeout(() => {
@@ -109,8 +107,11 @@ new class {
 	computeFrame() {
 		if (!this.videoTrack) return
 		this.canvas = document.createElement("canvas");
-		this.canvas.width = this.videoTrack.getSettings().width;
-		this.canvas.height = this.videoTrack.getSettings().height;
+		this.canvas.width = this.videoTrack.getSettings().width / 1.5;
+		this.canvas.height = this.videoTrack.getSettings().height / 1.5;
+
+		this.w = this.canvas.width
+		this.h = this.canvas.height
 
 		let canvasContext = this.canvas.getContext("2d");
 		canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -119,16 +120,16 @@ new class {
 		this.img_buffer = canvasContext.getImageData(0, 0, this.canvas.width, this.canvas.height)
 		let now = Date.now() / 1000
 
-		if (!this.old_buffer || now - this.last_true_sent > 3) {
-			this.frame = this.canvas.toDataURL('image/png')
+		if (!this.old_buffer || now - this.last_true_sent > 100) {
+			this.frame = this.canvas.toDataURL('image/jpg')
 				//this.dif_map = false
-			if (now - this.last_true_sent > 4) {
+			if (now - this.last_true_sent > 101) {
 				this.last_true_sent = now
 			}
 			return
 		}
 		let myImageData = canvasContext.createImageData(this.canvas.width, this.canvas.height);
-		let dif_map = new Map();
+
 
 		for (let i = 0; i < this.img_buffer.data.length; i += 4) {
 			let pixel = [this.img_buffer.data[i], this.img_buffer.data[i + 1], this.img_buffer.data[i + 2], this.img_buffer.data[i + 3]].join('-')
@@ -137,22 +138,15 @@ new class {
 				pixel_old = [this.old_buffer.data[i], this.old_buffer.data[i + 1], this.old_buffer.data[i + 2], this.old_buffer.data[i + 3]].join('-')
 			}
 			if (pixel != pixel_old) {
-				dif_map.set(i, this.img_buffer.data[i])
-				dif_map.set(i + 1, this.img_buffer.data[i + 1])
-				dif_map.set(i + 2, this.img_buffer.data[i + 2])
-				dif_map.set(i + 3, this.img_buffer.data[i + 3])
-					// myImageData.data[i] = this.img_buffer.data[i]
-					// myImageData.data[i + 1] = this.img_buffer.data[i + 1]
-					// myImageData.data[i + 2] = this.img_buffer.data[i + 2]
-					// myImageData.data[i + 3] = this.img_buffer.data[i + 3]
+				myImageData.data[i] = this.img_buffer.data[i]
+				myImageData.data[i + 1] = this.img_buffer.data[i + 1]
+				myImageData.data[i + 2] = this.img_buffer.data[i + 2]
+				myImageData.data[i + 3] = this.img_buffer.data[i + 3]
 			}
 		}
-		this.dif_map = dif_map
-		return
 		canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		canvasContext.putImageData(myImageData, 0, 0);
 		this.frame = this.canvas.toDataURL('image/png')
-
 	}
 	uuid() {
 		let d = new Date().getTime();

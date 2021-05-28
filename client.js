@@ -16,10 +16,11 @@ new class {
 			this.net.on('img_part', (msg) => {
 
 				let canvasContext = this.canvas.getContext("2d");
-				let part = LZUTF8.decompress(msg.data, { inputEncoding: "StorageBinaryString" });
-				let myImageData = canvasContext.createImageData(this.canvas.width, this.canvas.height);
+				let part = JSON.parse(LZUTF8.decompress(msg.data.part, { inputEncoding: "StorageBinaryString" }));
+				let myImageData = canvasContext.createImageData(...msg.data.size);
+				console.log(part.length)
 				part.map((item) => myImageData.data[item[0]] = item[1])
-				canvasContext.putImageData(myImageData, 0, 0, this.canvas.width, this.canvas.height);
+				canvasContext.putImageData(myImageData, 0, 0);
 				this.do_tick()
 			})
 			this.net.on('img_frame', (msg) => {
@@ -38,7 +39,7 @@ new class {
 		this.tick = setTimeout(() => {
 			this.net.send_cmd('got')
 			this.tick = false;
-		}, 30)
+		}, 200)
 	}
 	render(image = false, clean = false) {
 		let canvasContext = this.canvas.getContext("2d");
