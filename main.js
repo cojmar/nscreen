@@ -96,8 +96,8 @@ new class {
 	computeFrame() {
 		if (!this.streaming) return
 		this.canvas = document.createElement("canvas");
-		this.canvas.width = this.videoTrack.getSettings().width;
-		this.canvas.height = this.videoTrack.getSettings().height;
+		this.canvas.width = this.videoTrack.getSettings().width / 1.5;
+		this.canvas.height = this.videoTrack.getSettings().height / 1.5;
 
 		this.w = this.canvas.width
 		this.h = this.canvas.height
