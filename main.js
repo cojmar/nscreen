@@ -4,7 +4,7 @@ new class {
 		this.last_true_sent = Date.now() / 1000 - 10
 		this.send_screen_timeout = false
 		this.streaming = false
-		this.max_time_per_ping = 5
+		this.max_time_per_ping = 10
 		import (`./network.js`).then((module) => {
 			this.net = new module.default();
 			this.net.on('connect', () => {
@@ -110,8 +110,8 @@ new class {
 	computeFrame() {
 		if (!this.streaming) return
 		this.canvas = document.createElement("canvas");
-		this.canvas.width = this.videoTrack.getSettings().width / 2;
-		this.canvas.height = this.videoTrack.getSettings().height / 2;
+		this.canvas.width = this.videoTrack.getSettings().width / 1.8;
+		this.canvas.height = this.videoTrack.getSettings().height / 1.8;
 
 		this.w = this.canvas.width
 		this.h = this.canvas.height
@@ -124,9 +124,9 @@ new class {
 		let now = Date.now() / 1000
 
 		if (!this.old_buffer || now - this.last_true_sent > 15) {
-			this.frame = this.canvas.toDataURL('image/jpg', 0.9)
+			this.frame = this.canvas.toDataURL('image/png', 1)
 				//this.dif_map = false
-			if (now - this.last_true_sent > 101) {
+			if (now - this.last_true_sent > 16) {
 				this.last_true_sent = now
 			}
 			return
@@ -149,7 +149,7 @@ new class {
 		}
 		canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		canvasContext.putImageData(myImageData, 0, 0);
-		this.frame = this.canvas.toDataURL('image/jpg', 0.9)
+		this.frame = this.canvas.toDataURL('image/jpg', 0.1)
 	}
 	uuid() {
 		let d = new Date().getTime();
