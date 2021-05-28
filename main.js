@@ -14,7 +14,9 @@ new class {
 				this.net.send_cmd('join', this.my_room)
 				this.start()
 			})
-			this.net.on('ping', () => this.ping())
+			this.net.on('room.data', (d) => {
+				if (d.data.update) this.ping()
+			})
 			this.net.connect('wss://ws.emupedia.net')
 		})
 	}
@@ -25,6 +27,7 @@ new class {
 		}, this.max_time_per_ping)
 	}
 	start() {
+
 		document.getElementById('main').style.display = 'block';
 		this.video = document.getElementById("video");
 		this.logElem = document.getElementById("log");
@@ -48,6 +51,10 @@ new class {
 		this.stopElem.addEventListener("click", (evt) => {
 			this.stopCapture();
 		}, false);
+
+
+		this.ping()
+
 	}
 	async startCapture() {
 		try {
@@ -60,16 +67,20 @@ new class {
 			this.streaming = true
 			this.videoTrack = this.video.srcObject.getVideoTracks()[0]
 
-			this.sendScreen()
+			//this.sendScreen()
 		} catch (err) {
 			console.error("Error: " + err);
 		}
 	}
 	sendScreen() {
 		this.computeFrame();
-		if (!this.frame) return;
+		if (!this.frame) {
+			setTimeout(() => this.sendScreen(), 10)
+			return;
+		}
 		this.net.send_cmd('set_room_data', { "frame": LZUTF8.compress(this.frame, { outputEncoding: "StorageBinaryString" }), silent: 1 })
-		this.net.send_cmd('pong')
+		this.net.send_cmd('set_room_data', { "update": 1 })
+
 	}
 	stopCapture(evt) {
 		this.streaming = false
