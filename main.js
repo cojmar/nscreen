@@ -4,7 +4,8 @@ new class {
 		this.last_true_sent = Date.now() / 1000 - 10
 		this.send_screen_timeout = false
 		this.streaming = false
-		this.max_time_per_ping = 10
+		this.max_time_per_ping = 7
+		this.resolution = [1024, 768]
 		import (`./network.js`).then((module) => {
 			this.net = new module.default();
 			this.net.on('connect', () => {
@@ -21,6 +22,7 @@ new class {
 		})
 	}
 	ping() {
+		return this.sendScreen()
 		if (this.send_screen_timeout === false) this.send_screen_timeout = setTimeout(() => {
 			this.sendScreen()
 			this.send_screen_timeout = false
@@ -109,18 +111,17 @@ new class {
 	}
 	computeFrame() {
 		if (!this.streaming) return
-		this.canvas = document.createElement("canvas");
-		this.canvas.width = this.videoTrack.getSettings().width / 1.8;
-		this.canvas.height = this.videoTrack.getSettings().height / 1.8;
+		if (!this.canvas) {
+			this.canvas = document.createElement("canvas");
+			this.canvas.width = this.resolution[0]
+			this.canvas.height = this.resolution[1]
+			this.canvasContext = this.canvas.getContext("2d");
+		}
 
-		this.w = this.canvas.width
-		this.h = this.canvas.height
-
-		let canvasContext = this.canvas.getContext("2d");
-		canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
-		canvasContext.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
+		this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
+		this.canvasContext.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
 		if (this.img_buffer) this.old_buffer = this.img_buffer
-		this.img_buffer = canvasContext.getImageData(0, 0, this.canvas.width, this.canvas.height)
+		this.img_buffer = this.canvasContext.getImageData(0, 0, this.canvas.width, this.canvas.height)
 		let now = Date.now() / 1000
 
 		if (!this.old_buffer || now - this.last_true_sent > 15) {
@@ -131,7 +132,7 @@ new class {
 			}
 			return
 		}
-		let myImageData = canvasContext.createImageData(this.canvas.width, this.canvas.height);
+		let myImageData = this.canvasContext.createImageData(this.canvas.width, this.canvas.height);
 
 
 		for (let i = 0; i < this.img_buffer.data.length; i += 4) {
@@ -147,9 +148,9 @@ new class {
 				myImageData.data[i + 3] = this.img_buffer.data[i + 3]
 			}
 		}
-		canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
-		canvasContext.putImageData(myImageData, 0, 0);
-		this.frame = this.canvas.toDataURL('image/jpg', 0.1)
+		this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
+		this.canvasContext.putImageData(myImageData, 0, 0);
+		this.frame = this.canvas.toDataURL('image/jpg', 0.7)
 	}
 	uuid() {
 		let d = new Date().getTime();

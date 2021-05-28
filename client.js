@@ -35,9 +35,7 @@ new class {
 	do_ping() {
 		if (this.getting_data) return
 		this.getting_data = true
-		setTimeout(() => {
-			this.net.send_cmd('room_data', 'frame')
-		})
+		this.net.send_cmd('room_data', 'frame')
 
 	}
 	render(image = false, clean = false) {
