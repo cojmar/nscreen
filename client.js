@@ -13,20 +13,32 @@ new class {
 			this.net.on('room.info', () => {
 				this.net.send_cmd('got')
 			})
+			this.net.on('img_part', (msg) => {
+
+				let canvasContext = this.canvas.getContext("2d");
+				let part = LZUTF8.decompress(msg.data, { inputEncoding: "StorageBinaryString" });
+				let myImageData = canvasContext.createImageData(this.canvas.width, this.canvas.height);
+				part.map((item) => myImageData.data[item[0]] = item[1])
+				canvasContext.putImageData(myImageData, 0, 0, this.canvas.width, this.canvas.height);
+				this.do_tick()
+			})
 			this.net.on('img_frame', (msg) => {
 				this.frame = LZUTF8.decompress(msg.data, { inputEncoding: "StorageBinaryString" });
 				this.render(this.frame)
-				if (this.tick) clearTimeout(this.tick);
-				this.net.send_cmd('got')
-				this.tick = setTimeout(() => {
-					this.net.send_cmd('got')
-					this.tick = false;
-				}, 30)
+				this.do_tick()
 
 			})
 			this.net.connect('wss://ws.emupedia.net')
 			window.n = this.net
 		})
+	}
+	do_tick() {
+		if (this.tick) clearTimeout(this.tick);
+		this.net.send_cmd('got')
+		this.tick = setTimeout(() => {
+			this.net.send_cmd('got')
+			this.tick = false;
+		}, 30)
 	}
 	render(image = false, clean = false) {
 		let canvasContext = this.canvas.getContext("2d");
