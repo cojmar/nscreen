@@ -110,7 +110,7 @@ new class {
 		let now = Date.now() / 1000
 
 		if (!this.old_buffer || now - this.last_true_sent > 15) {
-			this.frame = this.canvas.toDataURL('image/jpg')
+			this.frame = this.canvas.toDataURL('image/jpg', 0.9)
 				//this.dif_map = false
 			if (now - this.last_true_sent > 101) {
 				this.last_true_sent = now
@@ -135,7 +135,7 @@ new class {
 		}
 		canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		canvasContext.putImageData(myImageData, 0, 0);
-		this.frame = this.canvas.toDataURL('image/jpg')
+		this.frame = this.canvas.toDataURL('image/jpg', 0.9)
 	}
 	uuid() {
 		let d = new Date().getTime();
