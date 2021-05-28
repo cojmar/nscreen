@@ -150,7 +150,7 @@ new class {
 		}
 		this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		this.canvasContext.putImageData(myImageData, 0, 0);
-		this.frame = this.canvas.toDataURL('image/jpg', 0.7)
+		this.frame = this.canvas.toDataURL('image/jpg', 0.4)
 	}
 	uuid() {
 		let d = new Date().getTime();

@@ -8,34 +8,23 @@
 	<script src="lzutf8.min.js"></script>
 	<title>Document</title>
 	<style>
-		#video {
-			display: none;
-			border: 1px solid #999;
-			width: 98%;
-			max-width: 860px;
+		body {
+			margin: 0;
+			padding: 0;
 		}
 		
-		.error {
-			color: red;
-		}
-		
-		.warn {
-			color: orange;
-		}
-		
-		.info {
-			color: darkgreen;
-		}
-		
-		#main {
-			display: none;
+		canvas {
+			margin: 0;
+			padding: 0;
+			width: 100%;
+			height: 100%;
 		}
 	</style>
 </head>
 
 <body>
 
-	<canvas id="out" style="width:800px;height:600px;"></canvas>
+	<canvas id="out"></canvas>
 
 	<script src="./client.js" type="module"></script>
 </body>
