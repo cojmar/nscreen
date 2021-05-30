@@ -113,6 +113,8 @@ new class {
 		this.canvas.toBlob((data) => {
 			data.arrayBuffer().then(buffer => {
 				let frame = BSON.Binary(new Uint8Array(buffer))
+				console.log(frame)
+				console.log(typeof frame)
 				this.net.send_cmd('frame', frame)
 				this.frame = frame
 					//console.log(this.frame)
