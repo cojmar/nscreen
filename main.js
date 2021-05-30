@@ -4,7 +4,7 @@ new class {
 		this.last_true_sent = Date.now() / 1000 - 10
 		this.send_screen_timeout = false
 		this.streaming = false
-		this.max_time_per_ping = 7
+		this.max_time_per_ping = 1
 		this.resolution = [1024, 768]
 		import (`./network.js`).then((module) => {
 			this.net = new module.default();
@@ -15,6 +15,9 @@ new class {
 				this.net.send_cmd('join', this.my_room)
 				this.start()
 			})
+			this.net.on('get_img', () => {
+				this.ping()
+			})
 			this.net.on('room.data', (d) => {
 				if (d.data.update) this.ping()
 			})
@@ -22,7 +25,7 @@ new class {
 		})
 	}
 	ping() {
-		return this.sendScreen()
+		//return this.sendScreen()
 		if (this.send_screen_timeout === false) this.send_screen_timeout = setTimeout(() => {
 			this.sendScreen()
 			this.send_screen_timeout = false
@@ -69,7 +72,6 @@ new class {
 			this.streaming = true
 			this.videoTrack = this.video.srcObject.getVideoTracks()[0]
 
-			//this.sendScreen()
 		} catch (err) {
 			console.error("Error: " + err);
 		}
@@ -80,8 +82,6 @@ new class {
 			setTimeout(() => this.sendScreen(), 10)
 			return;
 		}
-		this.net.send_cmd('set_room_data', { "frame": LZUTF8.compress(this.frame, { outputEncoding: "StorageBinaryString" }), silent: 1 })
-		this.net.send_cmd('set_room_data', { "update": 1 })
 
 	}
 	stopCapture(evt) {
@@ -109,7 +109,22 @@ new class {
 		const [redIndex, greenIndex, blueIndex, alphaIndex] = colorIndices;
 		return [imageData.data[redIndex], imageData.data[greenIndex], imageData.data[blueIndex], imageData.data[alphaIndex]];
 	}
+	exportCanvas() {
+		this.canvas.toBlob((data) => {
+			data.arrayBuffer().then(buffer => {
+				let frame = BSON.Binary(new Uint8Array(buffer))
+				this.net.send_cmd('frame', frame)
+				this.frame = frame
+					//console.log(this.frame)
+					//this.net.send_cmd('set_room_data', { "frame": false, silent: 1 })
+					//this.net.send_cmd('set_room_data', { "frame": this.frame })
+					//this.net.send_cmd('set_room_data', { "update": 1 })
+					//this.send_data(new BSON.Binary(new Uint8Array(buffer)))
+			});
+		})
+	}
 	computeFrame() {
+
 		if (!this.streaming) return
 		if (!this.canvas) {
 			this.canvas = document.createElement("canvas");
@@ -125,7 +140,8 @@ new class {
 		let now = Date.now() / 1000
 
 		if (!this.old_buffer || now - this.last_true_sent > 15) {
-			this.frame = this.canvas.toDataURL('image/png', 1)
+			//this.frame = this.canvas.toDataURL('image/png', 1)
+			this.exportCanvas()
 				//this.dif_map = false
 			if (now - this.last_true_sent > 16) {
 				this.last_true_sent = now
@@ -150,7 +166,8 @@ new class {
 		}
 		this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		this.canvasContext.putImageData(myImageData, 0, 0);
-		this.frame = this.canvas.toDataURL('image/jpg', 0.4)
+		this.exportCanvas()
+			//this.frame = this.canvas.toDataURL('image/jpg', 0.4)
 	}
 	uuid() {
 		let d = new Date().getTime();

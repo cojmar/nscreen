@@ -10,19 +10,24 @@ new class {
 			this.net.on('connect', () => {
 				this.net.send_cmd('auth', { 'user': '', 'room': 'N-screen-lobby' })
 			})
+			this.net.on('frame', (data) => {
+				var blob = new Blob([data.data.buffer, 'image/png']);
+				this.render(blob)
+			})
 			this.net.on('room.data', (data) => {
 				this.getting_data = false
 				if (!data.data.frame) return
-				this.frame = LZUTF8.decompress(data.data.frame, { inputEncoding: "StorageBinaryString" });
-				this.render(this.frame)
-				this.do_ping()
+				this.frame = data.data.frame;
+				//this.render(this.frame)
+
 			})
 			this.net.on('room.info', (data) => {
 				if (data.type != 'game') return
 				this.getting_data = false
-				this.frame = LZUTF8.decompress(data.data.frame, { inputEncoding: "StorageBinaryString" });
-				this.render(this.frame)
+				this.frame = data.data.frame;
+				//this.render(this.frame)
 				this.do_ping()
+
 			})
 			this.net.on('auth.info', () => {
 				this.net.send_cmd('join', this.my_room)
@@ -33,9 +38,9 @@ new class {
 		})
 	}
 	do_ping() {
-		if (this.getting_data) return
-		this.getting_data = true
-		this.net.send_cmd('room_data', 'frame')
+		//if (this.getting_data) return
+		//this.getting_data = true
+		this.net.send_cmd('get_img')
 
 	}
 	render(image = false, clean = false) {
@@ -47,8 +52,9 @@ new class {
 			my_image.onload = () => {
 				canvasContext.drawImage(my_image, 0, 0, this.canvas.width, this.canvas.height);
 			};
-			my_image.src = image
+			my_image.src = URL.createObjectURL(image)
 		}
 		this.getting_data = false
+		this.do_ping()
 	}
 }
