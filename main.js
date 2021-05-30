@@ -4,9 +4,10 @@ new class {
 		this.last_true_sent = Date.now() / 1000 - 10
 		this.send_screen_timeout = false
 		this.streaming = false
-			//this.auto_ping = true;
+		this.auto_ping = true;
 		this.max_time_per_ping = 1
 		this.resolution = [1280, 768]
+		this.resolution = [800, 600]
 		import (`./network.js`).then((module) => {
 			this.net = new module.default();
 			this.net.on('connect', () => {
