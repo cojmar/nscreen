@@ -42,6 +42,7 @@ new class {
 		this.stopElem = document.getElementById("stop");
 		let url = (window.location.href.indexOf('localhost') !== -1) ? window.location.href + '404.html#' + btoa(this.my_room) : window.location.href + btoa(this.my_room)
 		let video_link = document.getElementById("video_link")
+		this.video.style.display = 'block'
 		video_link.innerHTML = `<a href="#">${url}</a>`
 		video_link.addEventListener('click', (e) => {
 			e.preventDefault()
