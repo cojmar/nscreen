@@ -11,7 +11,8 @@ new class {
 				this.net.send_cmd('auth', { 'user': '', 'room': 'N-screen-lobby' })
 			})
 			this.net.on('frame', (data) => {
-				var blob = new Blob([data.data.buffer, 'image/png']);
+				this.getting_data = false
+				var blob = new Blob([pako.inflate(data.data.buffer), 'image/png']);
 				this.render(blob)
 			})
 			this.net.on('room.data', (data) => {
@@ -38,8 +39,8 @@ new class {
 		})
 	}
 	do_ping() {
-		//if (this.getting_data) return
-		//this.getting_data = true
+		if (this.getting_data) return
+		this.getting_data = true
 		this.net.send_cmd('get_img')
 
 	}

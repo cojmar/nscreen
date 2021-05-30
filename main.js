@@ -4,8 +4,9 @@ new class {
 		this.last_true_sent = Date.now() / 1000 - 10
 		this.send_screen_timeout = false
 		this.streaming = false
+			//this.auto_ping = true;
 		this.max_time_per_ping = 1
-		this.resolution = [1024, 768]
+		this.resolution = [1280, 768]
 		import (`./network.js`).then((module) => {
 			this.net = new module.default();
 			this.net.on('connect', () => {
@@ -16,7 +17,7 @@ new class {
 				this.start()
 			})
 			this.net.on('get_img', () => {
-				this.ping()
+				if (!this.auto_ping) this.ping()
 			})
 			this.net.on('room.data', (d) => {
 				if (d.data.update) this.ping()
@@ -112,16 +113,15 @@ new class {
 	exportCanvas() {
 		this.canvas.toBlob((data) => {
 			data.arrayBuffer().then(buffer => {
-				let frame = BSON.Binary(new Uint8Array(buffer))
-				console.log(frame)
-				console.log(typeof frame)
+				let frame = BSON.Binary(pako.deflate(new Uint8Array(buffer)))
 				this.net.send_cmd('frame', frame)
 				this.frame = frame
-					//console.log(this.frame)
-					//this.net.send_cmd('set_room_data', { "frame": false, silent: 1 })
-					//this.net.send_cmd('set_room_data', { "frame": this.frame })
-					//this.net.send_cmd('set_room_data', { "update": 1 })
-					//this.send_data(new BSON.Binary(new Uint8Array(buffer)))
+				if (this.auto_ping) this.ping();
+				//console.log(this.frame)
+				//this.net.send_cmd('set_room_data', { "frame": false, silent: 1 })
+				//this.net.send_cmd('set_room_data', { "frame": this.frame })
+				//this.net.send_cmd('set_room_data', { "update": 1 })
+				//this.send_data(new BSON.Binary(new Uint8Array(buffer)))
 			});
 		})
 	}
@@ -143,12 +143,12 @@ new class {
 
 		if (!this.old_buffer || now - this.last_true_sent > 15) {
 			//this.frame = this.canvas.toDataURL('image/png', 1)
-			this.exportCanvas()
-				//this.dif_map = false
+
+			//this.dif_map = false
 			if (now - this.last_true_sent > 16) {
 				this.last_true_sent = now
 			}
-			return
+			return this.exportCanvas()
 		}
 		let myImageData = this.canvasContext.createImageData(this.canvas.width, this.canvas.height);
 
@@ -168,7 +168,7 @@ new class {
 		}
 		this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		this.canvasContext.putImageData(myImageData, 0, 0);
-		this.exportCanvas()
+		return this.exportCanvas()
 			//this.frame = this.canvas.toDataURL('image/jpg', 0.4)
 	}
 	uuid() {
