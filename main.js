@@ -23,7 +23,7 @@ new class {
 			this.net.on('room.data', (d) => {
 				if (d.data.update) this.ping()
 			})
-			this.net.connect('wss://ws.emupedia.net')
+			this.net.connect('wss://ws.emupedia.net/ws/')
 		})
 	}
 	ping() {
